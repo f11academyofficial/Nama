@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generator Nama Bayi</title>
+<style>
+:root{--bg:#f2f7f8;--card:#fff;--ink:#17303b;--mute:#5b7480;--line:#d3e1e6;--sea:#1f6f80;--seaT:#fff;--tag:#e3f0f3;--star:#e8b130}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1b21;--card:#16262e;--ink:#e6f0f3;--mute:#93aab4;--line:#274150;--sea:#58b4c6;--seaT:#0f1b21;--tag:#1d3641}}
+*{box-sizing:border-box}
+html{scroll-padding-top:12px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font:700 1.9rem/1.2 Georgia,"Times New Roman",serif;margin:8px 0 6px}
+.lead{color:var(--mute);margin:0 0 20px;max-width:60ch}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+.panel .wide{grid-column:1/-1}
+label{display:grid;gap:4px;font-size:.88rem;color:var(--mute)}
+select,input[type=text],input[type=date]{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--sea);padding:9px 14px;background:transparent;color:var(--sea)}
+button.main{background:var(--sea);color:var(--seaT);font-weight:600}
+button[aria-pressed=true]{background:var(--star);border-color:var(--star);color:#2b2100}
+.chk{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:.95rem}
+#info{margin:18px 0 10px;color:var(--mute)}
+#list{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h2{font:700 1.4rem/1.2 Georgia,serif;margin:0 0 6px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.tag{background:var(--tag);border-radius:6px;padding:2px 8px;font-size:.82rem}
+.card p{margin:0 0 6px}
+.num{color:var(--mute);font-size:.9rem}
+.hit{color:var(--sea);font-weight:600}
+.act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+small.note{display:block;margin-top:28px;color:var(--mute);max-width:62ch}
+@media (max-width:520px){.panel{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){button{transition:background .15s}}
+</style>
+</head>
+<body>
+<main>
+<h1>Generator Nama Bayi</h1>
+<p class="lead">Pilih jenis kelamin, asal, dan arti yang Anda inginkan. Semua berjalan di browser Anda, tanpa akun dan tanpa data yang dikirim ke mana pun.</p>
+
+<section class="panel" aria-label="Filter nama">
+  <label>Jenis kelamin
+    <select id="g"><option value="">Semua</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+  </label>
+  <label>Asal nama
+    <select id="o"><option value="">Semua</option><option>Arab</option><option>Sansekerta</option><option>Jawa</option><option>Indonesia</option></select>
+  </label>
+  <label>Huruf awal
+    <select id="h"><option value="">Semua</option></select>
+  </label>
+  <label>Jumlah suku kata
+    <select id="s"><option value="">Semua</option><option value="1">1-2</option><option value="3">3</option><option value="4">4 atau lebih</option></select>
+  </label>
+  <label class="wide">Kata kunci arti
+    <input type="text" id="k" placeholder="contoh: cahaya, kuat, bijak" autocomplete="off">
+  </label>
+  <label>Nama yang sudah ada (opsional)
+    <input type="text" id="b" placeholder="contoh: Gayuh" autocomplete="off">
+  </label>
+  <label>Tanggal lahir bayi (opsional)
+    <input type="date" id="d">
+  </label>
+  <div class="wide row">
+    <button class="main" id="acak" type="button">Acak urutan</button>
+    <button id="reset" type="button">Atur ulang</button>
+    <label class="chk"><input type="checkbox" id="fav"> Favorit saja</label>
+  </div>
+</section>
+
+<p id="info" role="status" aria-live="polite"></p>
+<section id="list" aria-label="Hasil nama"></section>
+
+<small class="note">Angka nama dihitung dengan numerologi Pythagoras (A=1 sampai I=9, lalu berulang). Angka 11, 22, dan 33 tidak direduksi. Numerologi adalah tradisi dan hiburan, bukan ilmu pasti. Arti nama bersifat umum, silakan cek ulang sebelum memutuskan.</small>
+</main>
+
+<script>
+const RAW=`Muhammad|L|Arab|Terpuji
+Ahmad|L|Arab|Yang paling terpuji
+Ali|L|Arab|Tinggi, mulia
+Umar|L|Arab|Panjang umur
+Yusuf|L|Arab|Allah menambah (kebaikan)
+Ibrahim|L|Arab|Bapak banyak bangsa
+Ismail|L|Arab|Allah mendengar
+Zayn|L|Arab|Keindahan, hiasan
+Rayyan|L|Arab|Pintu surga bagi orang yang berpuasa
+Faris|L|Arab|Penunggang kuda, ksatria
+Hanif|L|Arab|Lurus, condong pada kebenaran
+Idris|L|Arab|Rajin belajar
+Khalid|L|Arab|Kekal, abadi
+Zaid|L|Arab|Bertambah (kebaikan)
+Farhan|L|Arab|Gembira, bahagia
+Hamzah|L|Arab|Singa, kuat
+Luqman|L|Arab|Orang bijak
+Musa|L|Arab|Nama nabi, diselamatkan dari air
+Nabil|L|Arab|Mulia, cerdas
+Rafi|L|Arab|Tinggi, luhur
+Salman|L|Arab|Selamat, damai
+Taufik|L|Arab|Pertolongan dari Allah
+Yahya|L|Arab|Hidup
+Zaki|L|Arab|Suci, bersih
+Fatih|L|Arab|Pembuka, penakluk
+Hafiz|L|Arab|Penjaga, penghafal
+Imran|L|Arab|Kemakmuran
+Kamil|L|Arab|Sempurna
+Rasyid|L|Arab|Cerdas, lurus
+Bilal|L|Arab|Kesegaran, nama sahabat Nabi
+Aisyah|P|Arab|Hidup, sejahtera
+Fatimah|P|Arab|Yang menyapih (dari keburukan)
+Khadijah|P|Arab|Anak yang lahir lebih awal
+Maryam|P|Arab|Nama ibu Nabi Isa
+Zahra|P|Arab|Bersinar, cemerlang
+Salma|P|Arab|Damai, selamat
+Hana|P|Arab|Kebahagiaan
+Laila|P|Arab|Malam
+Safiya|P|Arab|Jernih, murni
+Yasmin|P|Arab|Bunga melati
+Amira|P|Arab|Putri, pemimpin
+Alya|P|Arab|Tinggi, luhur
+Farah|P|Arab|Kegembiraan
+Halimah|P|Arab|Penyabar, lembut
+Kamila|P|Arab|Sempurna
+Najwa|P|Arab|Bisikan akrab
+Rania|P|Arab|Anggun, memandang
+Syifa|P|Arab|Penyembuh
+Zaina|P|Arab|Cantik, indah
+Aqila|P|Arab|Cerdas, berakal
+Nabila|P|Arab|Mulia, cerdas
+Qonita|P|Arab|Taat, patuh
+Nadia|P|Arab|Embun, kemurahan hati
+Inara|P|Arab|Bercahaya
+Sakinah|P|Arab|Ketenangan
+Arjuna|L|Sansekerta|Terang, putih, ksatria Pandawa
+Bima|L|Sansekerta|Gagah, tangguh
+Bagas|L|Jawa|Sehat, kuat
+Bayu|L|Sansekerta|Angin
+Candra|L|Sansekerta|Bulan
+Raka|L|Sansekerta|Bulan purnama
+Wira|L|Sansekerta|Pemberani, ksatria
+Galih|L|Jawa|Inti kayu, hati yang teguh
+Tirta|L|Sansekerta|Air suci
+Surya|L|Sansekerta|Matahari
+Satria|L|Sansekerta|Ksatria
+Aditya|L|Sansekerta|Matahari
+Cakra|L|Sansekerta|Roda, lingkaran
+Dharma|L|Sansekerta|Kebajikan
+Gilang|L|Jawa|Cemerlang
+Jaya|L|Sansekerta|Kemenangan
+Laksmana|L|Sansekerta|Bertanda baik
+Mahendra|L|Sansekerta|Raja para dewa
+Narendra|L|Sansekerta|Raja manusia
+Danu|L|Sansekerta|Air
+Wibowo|L|Jawa|Berwibawa
+Yudha|L|Sansekerta|Perang, pejuang
+Prasetya|L|Sansekerta|Setia, janji
+Tegar|L|Indonesia|Kuat, teguh
+Ayu|P|Jawa|Cantik
+Dewi|P|Sansekerta|Dewi
+Kinanti|P|Jawa|Mengiringi, menyertai
+Larasati|P|Jawa|Selaras, bernada indah
+Maharani|P|Sansekerta|Ratu agung
+Nirmala|P|Sansekerta|Suci, tanpa noda
+Puspita|P|Sansekerta|Bunga
+Sekar|P|Jawa|Bunga
+Wulan|P|Jawa|Bulan
+Anindya|P|Sansekerta|Sempurna, tak tercela
+Cahya|P|Jawa|Cahaya
+Gendis|P|Jawa|Manis
+Laksmi|P|Sansekerta|Keberuntungan, kemakmuran
+Ratna|P|Sansekerta|Permata
+Widya|P|Sansekerta|Ilmu, pengetahuan
+Citra|P|Sansekerta|Gambar, indah
+Mutiara|P|Indonesia|Mutiara
+Prameswari|P|Sansekerta|Permaisuri
+Kirana|P|Sansekerta|Sinar, cahaya
+Shinta|P|Sansekerta|Tokoh Ramayana yang setia
+Fajar|U|Arab|Waktu subuh, fajar
+Bintang|U|Indonesia|Bintang
+Lintang|U|Jawa|Bintang
+Langit|U|Indonesia|Langit
+Samudra|U|Sansekerta|Lautan luas
+Rizki|U|Arab|Rezeki
+Bening|U|Jawa|Jernih
+Embun|U|Indonesia|Titik air di pagi hari
+Pelangi|U|Indonesia|Pelangi
+Angkasa|U|Sansekerta|Langit luas
+Nur|U|Arab|Cahaya
+Alam|U|Arab|Dunia, alam semesta
+Bumi|U|Sansekerta|Bumi
+Senja|U|Indonesia|Waktu petang
+Asa|U|Indonesia|Harapan
+Aksa|U|Sansekerta|Poros, sumbu`;
+
+const NAMES=RAW.split('\n').map(l=>{const[n,g,o,a]=l.split('|');return{n,g,o,a}});
+const GL={L:'Laki-laki',P:'Perempuan',U:'Netral'};
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let favs=new Set();
+try{favs=new Set(JSON.parse(localStorage.getItem('nb-fav')||'[]'))}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem('nb-fav',JSON.stringify([...favs]))}catch(e){}};
+
+for(let i=65;i<=90;i++){const o=document.createElement('option');o.textContent=String.fromCharCode(i);$('h').appendChild(o)}
+
+function reduce(n){while(n>9&&n!==11&&n!==22&&n!==33)n=String(n).split('').reduce((a,b)=>a+ +b,0);return n}
+function nameNum(s){let t=0;for(const c of s.toUpperCase()){const k=c.charCodeAt(0)-64;if(k>=1&&k<=26)t+=((k-1)%9)+1}return reduce(t)}
+function lifePath(v){
+  if(!v)return null;
+  const [y,m,d]=v.split('-');
+  const sum=a=>String(a).split('').reduce((x,c)=>x+ +c,0);
+  return reduce(reduce(sum(+d))+reduce(sum(+m))+reduce(sum(+y)));
+}
+function syl(n){return (n.toLowerCase().match(/[aiueo]+/g)||[]).length}
+
+let order=NAMES.map((_,i)=>i);
+function shuffle(){for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}}
+
+function render(){
+  const g=$('g').value,o=$('o').value,h=$('h').value,s=$('s').value;
+  const k=$('k').value.trim().toLowerCase(),base=$('b').value.trim(),lp=lifePath($('d').value),onlyFav=$('fav').checked;
+  const res=order.map(i=>NAMES[i]).filter(x=>{
+    if(g&&x.g!==g&&x.g!=='U')return false;
+    if(o&&x.o!==o)return false;
+    if(h&&x.n[0].toUpperCase()!==h)return false;
+    if(s){const c=syl(x.n);if(s==='1'&&c>2)return false;if(s==='3'&&c!==3)return false;if(s==='4'&&c<4)return false}
+    if(k&&!k.split(/[ ,]+/).filter(Boolean).every(w=>x.a.toLowerCase().includes(w)))return false;
+    if(onlyFav&&!favs.has(x.n))return false;
+    return true;
+  });
+  $('info').textContent=res.length?res.length+' nama ditemukan'+(lp?'. Life Path bayi: '+lp:''):'Tidak ada nama yang cocok. Coba longgarkan filter atau ganti kata kunci.';
+  $('list').innerHTML=res.map(x=>{
+    const full=base?base+' '+x.n:x.n;
+    const num=nameNum(full);
+    const hit=lp&&num===lp?' <span class="hit">Sama dengan Life Path bayi</span>':'';
+    const wa='https://wa.me/?text='+encodeURIComponent('Usul nama bayi: '+full+' ('+x.a+')');
+    return '<article class="card"><h2>'+esc(full)+'</h2>'+
+      '<div class="tags"><span class="tag">'+GL[x.g]+'</span><span class="tag">'+x.o+'</span><span class="tag">'+syl(x.n)+' suku kata</span></div>'+
+      '<p>'+x.a+'</p><div class="num">Angka nama '+(base?'lengkap ':'')+num+hit+'</div>'+
+      '<div class="act"><button type="button" data-f="'+x.n+'" aria-pressed="'+favs.has(x.n)+'">'+(favs.has(x.n)?'Tersimpan':'Simpan')+'</button>'+
+      '<a href="'+wa+'" target="_blank" rel="noopener"><button type="button">Bagikan ke WhatsApp</button></a></div></article>';
+  }).join('');
+}
+
+$('list').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-f]');if(!b)return;
+  const n=b.dataset.f;favs.has(n)?favs.delete(n):favs.add(n);saveFavs();render();
+});
+['g','o','h','s','fav','d'].forEach(id=>$(id).addEventListener('change',render));
+['k','b'].forEach(id=>$(id).addEventListener('input',render));
+$('acak').addEventListener('click',()=>{shuffle();render()});
+$('reset').addEventListener('click',()=>{
+  ['g','o','h','s','k','b','d'].forEach(id=>$(id).value='');$('fav').checked=false;
+  order=NAMES.map((_,i)=>i);render();
+});
+shuffle();render();
+</script>
+</body>
+</html>
